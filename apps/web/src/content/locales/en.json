@@ -1,0 +1,21 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "pricing": "Pricing",
+    "classes": "Classes",
+    "coaches": "Coaches",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Transform your body, change your life",
+    "subtitle": "Premium equipment • Certified coaches • Motivating community",
+    "cta_trial": "Free trial",
+    "cta_visit": "Guided tour"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success"
+  }
+}

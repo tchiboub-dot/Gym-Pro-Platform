@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-0: #090b10;
+    --bg-1: #0f131a;
+    --surface: #151b24;
+    --text-strong: #f4f7fb;
+    --text-base: #d1d9e6;
+    --text-muted: #9ba7ba;
+    --accent: #18c2a4;
+    --danger: #ff5b6e;
+  }
+
+  body {
+    @apply bg-bg-0 text-text-base font-body antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading text-text-strong;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

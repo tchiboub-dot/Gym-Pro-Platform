@@ -1,0 +1,21 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "pricing": "Tarifs",
+    "classes": "Cours",
+    "coaches": "Coachs",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Transformez votre corps, changez votre vie",
+    "subtitle": "Équipements premium • Coachs certifiés • Communauté motivante",
+    "cta_trial": "Essai gratuit",
+    "cta_visit": "Visite guidée"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "success": "Succès"
+  }
+}
