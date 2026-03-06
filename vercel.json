@@ -1,6 +1,5 @@
 {
-  "buildCommand": "pnpm --filter @gympro/web build",
+  "buildCommand": "pnpm turbo run build --filter=@gympro/web",
   "installCommand": "pnpm install",
-  "framework": "nextjs",
-  "outputDirectory": "apps/web/.next"
+  "framework": "nextjs"
 }
