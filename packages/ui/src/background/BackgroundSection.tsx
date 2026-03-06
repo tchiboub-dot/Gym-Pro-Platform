@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { overlayPresets, type OverlayPreset } from './presets';
 
@@ -60,28 +59,26 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({
                   : { scale: 1 }
               }
             >
-              <Image
+              <img
                 src={imageSrc}
                 alt=""
-                fill
-                priority={priority}
-                quality={90}
-                className="object-cover"
-                sizes="100vw"
+                className="h-full w-full object-cover"
+                loading={priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : 'auto'}
+                decoding="async"
               />
             </motion.div>
           </div>
 
           {/* Mobile */}
           <div className="absolute inset-0 md:hidden">
-            <Image
+            <img
               src={mobileVariant || imageSrc}
               alt=""
-              fill
-              priority={priority}
-              quality={85}
-              className="object-cover"
-              sizes="100vw"
+              className="h-full w-full object-cover"
+              loading={priority ? 'eager' : 'lazy'}
+              fetchPriority={priority ? 'high' : 'auto'}
+              decoding="async"
             />
           </div>
         </>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { Space_Grotesk, Manrope } from 'next/font/google';
-import '../styles/globals.css';
+import '../../styles/globals.css';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],

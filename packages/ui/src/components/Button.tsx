@@ -1,16 +1,17 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 import { scaleOnHover } from '../motion/variants';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
 }
 
 export const Button: React.FC<ButtonProps> = ({
+
   variant = 'primary',
   size = 'md',
   children,
