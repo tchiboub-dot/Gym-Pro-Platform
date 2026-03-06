@@ -1,7 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@gympro/web...",
-  "outputDirectory": "apps/web/.next",
+  "buildCommand": "pnpm turbo run build --filter=@gympro/web",
   "installCommand": "pnpm install",
-  "framework": null,
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./apps/web"
+  "framework": "nextjs"
 }
