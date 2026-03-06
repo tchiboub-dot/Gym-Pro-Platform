@@ -1,0 +1,4 @@
+
+> @gympro/shared@0.1.0 typecheck C:\Users\mlap\OneDrive\Desktop\appli-complete\Gym Pro Platform\packages\shared
+> tsc -p tsconfig.json --noEmit
+

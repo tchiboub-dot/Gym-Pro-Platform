@@ -1,0 +1,21 @@
+{
+  "name": "gym-pro-platform",
+  "private": true,
+  "packageManager": "pnpm@9.12.2",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "db:migrate": "pnpm --filter @gympro/api prisma migrate dev",
+    "db:seed": "pnpm --filter @gympro/api prisma db seed",
+    "db:studio": "pnpm --filter @gympro/api prisma studio",
+    "compose:up": "docker compose -f infra/docker/docker-compose.yml up -d",
+    "compose:down": "docker compose -f infra/docker/docker-compose.yml down"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.12"
+  }
+}

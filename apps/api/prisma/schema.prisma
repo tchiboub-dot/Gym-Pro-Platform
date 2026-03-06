@@ -1,0 +1,586 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  COACH
+  MEMBER
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELED
+  WAITLISTED
+  NO_SHOW
+  ATTENDED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
+
+enum PaymentStatus {
+  REQUIRES_ACTION
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  VOID
+  REFUNDED
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum CurrencyCode {
+  MAD
+  EUR
+  USD
+}
+
+enum TaxMode {
+  INCLUSIVE
+  EXCLUSIVE
+  NONE
+}
+
+enum LeadSource {
+  WEBSITE
+  WHATSAPP
+  PHONE
+  WALK_IN
+  REFERRAL
+  OTHER
+}
+
+enum ConsentType {
+  ANALYTICS
+  MARKETING
+  PIXEL
+  NECESSARY
+}
+
+model GymLocation {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  name               String
+  city               String
+  district           String?
+  countryCode        String   @default("MA")
+  timezone           String   @default("Africa/Casablanca")
+  addressLine1       String
+  addressLine2       String?
+  postalCode         String?
+  phone              String?
+  whatsapp           String?
+  email              String?
+  latitude           Float?
+  longitude          Float?
+  isActive           Boolean  @default(true)
+  bookingLateCancelMins Int   @default(120)
+  bookingNoShowPenalty Int    @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  users              User[]
+  plans              Plan[]
+  classes            Class[]
+  classSessions      ClassSession[]
+  bookings           Booking[]
+  waitlistEntries    WaitlistEntry[]
+  coupons            Coupon[]
+  invoices           Invoice[]
+  payments           Payment[]
+  leads              Lead[]
+  blogPosts          BlogPost[]
+  mediaAssets        MediaAsset[]
+  settings           Setting[]
+
+  @@index([city, district])
+}
+
+model User {
+  id                 String      @id @default(cuid())
+  gymLocationId      String
+  email              String
+  passwordHash       String
+  firstName          String
+  lastName           String
+  phone              String?
+  locale             String      @default("fr")
+  status             UserStatus  @default(PENDING)
+  role               UserRole
+  lastLoginAt        DateTime?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  gymLocation        GymLocation  @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  subscriptions      Subscription[]
+  bookings           Booking[]
+  waitlistEntries    WaitlistEntry[]
+  checkins           Checkin[]
+  coachAvailabilities CoachAvailability[] @relation("CoachAvailabilityUser")
+  coachedClasses     Class[] @relation("ClassCoach")
+  invoices           Invoice[]
+  payments           Payment[]
+  notifications      Notification[]
+  emailLogs          EmailLog[]
+  auditLogs          AuditLog[]
+  consents           ConsentRecord[]
+
+  @@unique([gymLocationId, email])
+  @@index([gymLocationId, role])
+}
+
+model Plan {
+  id                 String      @id @default(cuid())
+  gymLocationId      String
+  code               String
+  name               String
+  description        String?
+  billingInterval    String
+  amountCents        Int
+  currency           CurrencyCode
+  taxMode            TaxMode     @default(NONE)
+  taxRateBps         Int?        // basis points, e.g. 2000 = 20%
+  stripePriceId      String?
+  maxWeeklyBookings  Int?
+  isActive           Boolean     @default(true)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  gymLocation        GymLocation  @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  subscriptions      Subscription[]
+
+  @@unique([gymLocationId, code])
+  @@index([gymLocationId, isActive])
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  gymLocationId          String
+  userId                 String
+  planId                 String
+  status                 SubscriptionStatus
+  startsAt               DateTime
+  endsAt                 DateTime?
+  cancelAt               DateTime?
+  stripeCustomerId       String?
+  stripeSubscriptionId   String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  gymLocation            GymLocation        @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  plan                   Plan               @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([gymLocationId, status])
+  @@index([userId, status])
+}
+
+model Class {
+  id                  String     @id @default(cuid())
+  gymLocationId       String
+  coachId             String?
+  slug                String
+  name                String
+  description         String?
+  category            String?
+  durationMins        Int
+  capacity            Int
+  isActive            Boolean    @default(true)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  gymLocation         GymLocation @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  coach               User?       @relation("ClassCoach", fields: [coachId], references: [id], onDelete: SetNull)
+  sessions            ClassSession[]
+
+  @@unique([gymLocationId, slug])
+  @@index([gymLocationId, category])
+}
+
+model ClassSession {
+  id                  String       @id @default(cuid())
+  gymLocationId       String
+  classId             String
+  coachId             String?
+  startsAt            DateTime
+  endsAt              DateTime
+  capacity            Int
+  bookedCount         Int          @default(0)
+  waitlistCount       Int          @default(0)
+  status              SessionStatus @default(SCHEDULED)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  gymLocation         GymLocation  @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  class               Class        @relation(fields: [classId], references: [id], onDelete: Restrict)
+  coach               User?        @relation(fields: [coachId], references: [id], onDelete: SetNull)
+  bookings            Booking[]
+  waitlistEntries     WaitlistEntry[]
+  checkins            Checkin[]
+
+  @@index([gymLocationId, startsAt])
+  @@index([classId, startsAt])
+  @@unique([classId, startsAt])
+}
+
+model Booking {
+  id                  String        @id @default(cuid())
+  gymLocationId       String
+  classSessionId      String
+  userId              String
+  status              BookingStatus @default(CONFIRMED)
+  canceledAt          DateTime?
+  cancelReason        String?
+  noShowPenaltyCents  Int?          @default(0)
+  idempotencyKey      String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  gymLocation         GymLocation   @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  classSession        ClassSession  @relation(fields: [classSessionId], references: [id], onDelete: Restrict)
+  user                User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([classSessionId, userId])
+  @@unique([gymLocationId, idempotencyKey])
+  @@index([gymLocationId, status, createdAt])
+}
+
+model WaitlistEntry {
+  id                  String      @id @default(cuid())
+  gymLocationId       String
+  classSessionId      String
+  userId              String
+  position            Int
+  promotedAt          DateTime?
+  notifiedAt          DateTime?
+  createdAt           DateTime    @default(now())
+
+  gymLocation         GymLocation  @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  classSession        ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Restrict)
+  user                User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([classSessionId, userId])
+  @@unique([classSessionId, position])
+  @@index([gymLocationId, classSessionId, position])
+}
+
+model CoachAvailability {
+  id                  String   @id @default(cuid())
+  gymLocationId       String
+  coachId             String
+  weekday             Int      // 0-6
+  startMinute         Int      // 0..1439
+  endMinute           Int
+  isPrivateCoaching   Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  coach               User       @relation("CoachAvailabilityUser", fields: [coachId], references: [id], onDelete: Cascade)
+
+  @@index([gymLocationId, coachId, weekday])
+}
+
+model Payment {
+  id                  String        @id @default(cuid())
+  gymLocationId       String
+  userId              String
+  subscriptionId      String?
+  invoiceId           String?
+  amountCents         Int
+  currency            CurrencyCode
+  status              PaymentStatus
+  provider            String        @default("stripe")
+  providerPaymentId   String?
+  idempotencyKey      String?
+  paidAt              DateTime?
+  createdAt           DateTime      @default(now())
+
+  gymLocation         GymLocation    @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  user                User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  subscription        Subscription?  @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  invoice             Invoice?       @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, providerPaymentId])
+  @@unique([gymLocationId, idempotencyKey])
+  @@index([gymLocationId, status, createdAt])
+}
+
+model Invoice {
+  id                  String        @id @default(cuid())
+  gymLocationId       String
+  userId              String
+  number              String
+  status              InvoiceStatus @default(DRAFT)
+  subtotalCents       Int
+  taxCents            Int           @default(0)
+  totalCents          Int
+  currency            CurrencyCode
+  issuedAt            DateTime?
+  dueAt               DateTime?
+  paidAt              DateTime?
+  legalNote           String?
+  pdfUrl              String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  gymLocation         GymLocation   @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  user                User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  payments            Payment[]
+
+  @@unique([gymLocationId, number])
+  @@index([gymLocationId, status, issuedAt])
+}
+
+model Coupon {
+  id                  String    @id @default(cuid())
+  gymLocationId       String
+  code                String
+  description         String?
+  discountType        String    // percent | fixed
+  discountValue       Int
+  startsAt            DateTime?
+  endsAt              DateTime?
+  maxRedemptions      Int?
+  redemptionCount     Int       @default(0)
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  gymLocation         GymLocation @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+
+  @@unique([gymLocationId, code])
+  @@index([gymLocationId, isActive])
+}
+
+model Lead {
+  id                  String     @id @default(cuid())
+  gymLocationId       String
+  fullName            String
+  email               String?
+  phone               String?
+  source              LeadSource @default(WEBSITE)
+  campaignUtm         String?
+  note                String?
+  createdAt           DateTime   @default(now())
+
+  gymLocation         GymLocation @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+
+  @@index([gymLocationId, createdAt])
+}
+
+model BlogCategory {
+  id                  String    @id @default(cuid())
+  slug                String    @unique
+  name                String
+  posts               BlogPost[]
+}
+
+model BlogTag {
+  id                  String    @id @default(cuid())
+  slug                String    @unique
+  name                String
+  postTags            BlogPostTag[]
+}
+
+model BlogPost {
+  id                  String    @id @default(cuid())
+  gymLocationId       String
+  categoryId          String?
+  slug                String
+  title               String
+  excerpt             String?
+  contentMd           String
+  locale              String    @default("fr")
+  isPublished         Boolean   @default(false)
+  publishedAt         DateTime?
+  ogImageUrl          String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  gymLocation         GymLocation   @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  category            BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags                BlogPostTag[]
+
+  @@unique([gymLocationId, locale, slug])
+  @@index([gymLocationId, isPublished, publishedAt])
+}
+
+model BlogPostTag {
+  blogPostId          String
+  tagId               String
+
+  blogPost            BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  tag                 BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([blogPostId, tagId])
+}
+
+model MediaAsset {
+  id                  String   @id @default(cuid())
+  gymLocationId       String
+  bucket              String
+  objectKey           String
+  mimeType            String
+  width               Int?
+  height              Int?
+  bytes               Int?
+  alt                 String?
+  createdAt           DateTime @default(now())
+
+  gymLocation         GymLocation @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+
+  @@unique([bucket, objectKey])
+  @@index([gymLocationId, createdAt])
+}
+
+model Checkin {
+  id                  String   @id @default(cuid())
+  gymLocationId       String
+  classSessionId      String
+  userId              String
+  qrTokenHash         String?
+  checkedInAt         DateTime @default(now())
+
+  gymLocation         GymLocation  @relation(fields: [gymLocationId], references: [id], onDelete: Restrict)
+  classSession        ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Restrict)
+  user                User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([classSessionId, userId])
+  @@index([gymLocationId, checkedInAt])
+}
+
+model Notification {
+  id                  String             @id @default(cuid())
+  gymLocationId       String
+  userId              String
+  type                NotificationType
+  templateKey         String
+  payloadJson         Json
+  status              NotificationStatus @default(PENDING)
+  scheduledAt         DateTime?
+  sentAt              DateTime?
+  createdAt           DateTime           @default(now())
+
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([gymLocationId, status, scheduledAt])
+}
+
+model EmailLog {
+  id                  String   @id @default(cuid())
+  gymLocationId       String
+  userId              String?
+  provider            String
+  templateKey         String
+  toEmail             String
+  providerMessageId   String?
+  status              String
+  error               String?
+  sentAt              DateTime?
+  createdAt           DateTime @default(now())
+
+  user                User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([gymLocationId, createdAt])
+}
+
+model Setting {
+  id                  String   @id @default(cuid())
+  gymLocationId       String
+  key                 String
+  valueJson           Json
+  isPublic            Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+
+  gymLocation         GymLocation @relation(fields: [gymLocationId], references: [id], onDelete: Cascade)
+
+  @@unique([gymLocationId, key])
+}
+
+model ConsentRecord {
+  id                  String      @id @default(cuid())
+  gymLocationId       String
+  userId              String?
+  consentType         ConsentType
+  granted             Boolean
+  proof               Json
+  createdAt           DateTime    @default(now())
+
+  user                User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([gymLocationId, consentType, createdAt])
+}
+
+model AuditLog {
+  id                  String   @id @default(cuid())
+  gymLocationId       String
+  actorUserId         String?
+  action              String
+  entityType          String
+  entityId            String?
+  changesJson         Json?
+  ipAddress           String?
+  userAgent           String?
+  createdAt           DateTime @default(now())
+
+  actor               User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([gymLocationId, action, createdAt])
+}
+
+model WebhookEvent {
+  id                  String   @id @default(cuid())
+  provider            String
+  eventId             String
+  eventType           String
+  receivedAt          DateTime @default(now())
+  processedAt         DateTime?
+  status              String   @default("received")
+  payload             Json
+  error               String?
+
+  @@unique([provider, eventId])
+  @@index([status, receivedAt])
+}
