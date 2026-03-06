@@ -5,9 +5,18 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/services/auth.service';
 
+type RegisterFormState = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  firstName: string;
+  lastName: string;
+  locale: 'fr' | 'en' | 'ar';
+};
+
 export default function RegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterFormState>({
     email: '',
     password: '',
     confirmPassword: '',
