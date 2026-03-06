@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@gympro/web...",
+  "outputDirectory": "apps/web/.next",
+  "installCommand": "pnpm install",
+  "framework": null,
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./apps/web"
+}
