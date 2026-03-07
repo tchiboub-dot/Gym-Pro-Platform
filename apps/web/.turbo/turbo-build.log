@@ -28,7 +28,7 @@ Route (app)                              Size     First Load JS
 ┌ ○ /_not-found                          884 B          85.1 kB
 ├ λ /[locale]                            38.9 kB         123 kB
 ├ λ /[locale]/billing                    167 B          84.4 kB
-├ λ /[locale]/bookings                   168 B          84.4 kB
+├ λ /[locale]/bookings                   167 B          84.4 kB
 ├ λ /[locale]/classes                    167 B          84.4 kB
 ├ λ /[locale]/coaches                    167 B          84.4 kB
 ├ λ /[locale]/contact                    167 B          84.4 kB

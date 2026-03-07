@@ -46,32 +46,34 @@ interface FAQ {
 }
 
 const translationsMap: Record<string, any> = {
-  en: enTranslations,
-  fr: frTranslations,
-  ar: arTranslations,
+  en: enTranslations as any,
+  fr: frTranslations as any,
+  ar: arTranslations as any,
 };
 
-interface PageProps {
-  params: {
-    locale: string;
-  };
+// Simplified - get content from English by default but try all locales
+function getContentForLocale(locale: string | undefined): any {
+  if (!locale) return translationsMap.en;
+  
+  // Normalize locale code (e.g., 'en' from 'en-US')
+  const baseLocale = locale.split('-')[0].toLowerCase();
+  return translationsMap[baseLocale] || translationsMap.en;
 }
 
-export default function HomePage({ params }: PageProps) {
+export default function HomePage({ params }: { params: { locale: string } }) {
   const t = useTranslations();
-  const locale = params.locale || 'en';
+  
+  // Get the content - fallback to English if locale not found  
+  const content = getContentForLocale(params?.locale) || getContentForLocale('en');
 
-  // Get the correct translation file
-  const content = translationsMap[locale] || translationsMap.en;
-
-  // Extract section data
-  const features = (content.features?.items as Feature[]) || [];
-  const equipment = (content.equipment?.items as Equipment[]) || [];
-  const coaches = (content.coaches?.items as Coach[]) || [];
-  const schedule = (content.schedule?.items as Schedule[]) || [];
-  const pricing = (content.pricing?.items as PricingPlan[]) || [];
-  const testimonials = (content.testimonials?.items as Testimonial[]) || [];
-  const faq = (content.faq?.items as FAQ[]) || [];
+  // Extract section data with explicit logging
+  const features: Feature[] = Array.isArray(content?.features?.items) ? content.features.items : [];
+  const equipment: Equipment[] = Array.isArray(content?.equipment?.items) ? content.equipment.items : [];
+  const coaches: Coach[] = Array.isArray(content?.coaches?.items) ? content.coaches.items : [];
+  const schedule: Schedule[] = Array.isArray(content?.schedule?.items) ? content.schedule.items : [];
+  const pricing: PricingPlan[] = Array.isArray(content?.pricing?.items) ? content.pricing.items : [];
+  const testimonials: Testimonial[] = Array.isArray(content?.testimonials?.items) ? content.testimonials.items : [];
+  const faq: FAQ[] = Array.isArray(content?.faq?.items) ? content.faq.items : [];
 
   return (
     <main>
