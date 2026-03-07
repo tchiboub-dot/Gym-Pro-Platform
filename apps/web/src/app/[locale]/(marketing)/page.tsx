@@ -1,5 +1,9 @@
 import { useTranslations } from 'next-intl';
+import { getLocale } from 'next-intl/server';
 import { BackgroundSection, Button } from '@gympro/ui';
+import enTranslations from '@/content/locales/en.json';
+import frTranslations from '@/content/locales/fr.json';
+import arTranslations from '@/content/locales/ar.json';
 
 interface Feature {
   title: string;
@@ -42,66 +46,27 @@ interface FAQ {
   answer: string;
 }
 
-export default function HomePage() {
+const translations: Record<string, any> = {
+  en: enTranslations,
+  fr: frTranslations,
+  ar: arTranslations,
+};
+
+export default async function HomePage() {
   const t = useTranslations();
+  const locale = await getLocale();
 
-  // Get section data - use JSON parsing with type safety
-  let features: Feature[] = [];
-  let equipment: Equipment[] = [];
-  let coaches: Coach[] = [];
-  let schedule: Schedule[] = [];
-  let pricing: PricingPlan[] = [];
-  let testimonials: Testimonial[] = [];
-  let faq: FAQ[] = [];
+  // Get translations for current locale
+  const currentTranslations = translations[locale] || translations.en;
 
-  try {
-    const featuresRaw = t('features');
-    features = typeof featuresRaw === 'object' && 'items' in featuresRaw ? (featuresRaw as any).items : [];
-  } catch (e) {
-    features = [];
-  }
-
-  try {
-    const equipmentRaw = t('equipment');
-    equipment = typeof equipmentRaw === 'object' && 'items' in equipmentRaw ? (equipmentRaw as any).items : [];
-  } catch (e) {
-    equipment = [];
-  }
-
-  try {
-    const coachesRaw = t('coaches');
-    coaches = typeof coachesRaw === 'object' && 'items' in coachesRaw ? (coachesRaw as any).items : [];
-  } catch (e) {
-    coaches = [];
-  }
-
-  try {
-    const scheduleRaw = t('schedule');
-    schedule = typeof scheduleRaw === 'object' && 'items' in scheduleRaw ? (scheduleRaw as any).items : [];
-  } catch (e) {
-    schedule = [];
-  }
-
-  try {
-    const pricingRaw = t('pricing');
-    pricing = typeof pricingRaw === 'object' && 'items' in pricingRaw ? (pricingRaw as any).items : [];
-  } catch (e) {
-    pricing = [];
-  }
-
-  try {
-    const testimonialsRaw = t('testimonials');
-    testimonials = typeof testimonialsRaw === 'object' && 'items' in testimonialsRaw ? (testimonialsRaw as any).items : [];
-  } catch (e) {
-    testimonials = [];
-  }
-
-  try {
-    const faqRaw = t('faq');
-    faq = typeof faqRaw === 'object' && 'items' in faqRaw ? (faqRaw as any).items : [];
-  } catch (e) {
-    faq = [];
-  }
+  // Safely extract section data
+  const features: Feature[] = currentTranslations?.features?.items || [];
+  const equipment: Equipment[] = currentTranslations?.equipment?.items || [];
+  const coaches: Coach[] = currentTranslations?.coaches?.items || [];
+  const schedule: Schedule[] = currentTranslations?.schedule?.items || [];
+  const pricing: PricingPlan[] = currentTranslations?.pricing?.items || [];
+  const testimonials: Testimonial[] = currentTranslations?.testimonials?.items || [];
+  const faq: FAQ[] = currentTranslations?.faq?.items || [];
 
   return (
     <main>
