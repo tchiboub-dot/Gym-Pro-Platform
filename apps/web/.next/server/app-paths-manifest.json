@@ -1,16 +1,16 @@
 {
-  "/api/auth/register/route": "app/api/auth/register/route.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
   "/_not-found": "app/_not-found.js",
-  "/[locale]/(marketing)/classes/page": "app/[locale]/(marketing)/classes/page.js",
-  "/[locale]/(marketing)/coaches/page": "app/[locale]/(marketing)/coaches/page.js",
-  "/[locale]/(auth)/login/page": "app/[locale]/(auth)/login/page.js",
-  "/[locale]/(marketing)/pricing/page": "app/[locale]/(marketing)/pricing/page.js",
-  "/[locale]/(auth)/register/page": "app/[locale]/(auth)/register/page.js",
-  "/[locale]/(member)/dashboard/page": "app/[locale]/(member)/dashboard/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/auth/register/route": "app/api/auth/register/route.js",
   "/[locale]/(marketing)/contact/page": "app/[locale]/(marketing)/contact/page.js",
-  "/[locale]/(marketing)/page": "app/[locale]/(marketing)/page.js",
-  "/[locale]/(member)/bookings/page": "app/[locale]/(member)/bookings/page.js",
+  "/[locale]/(marketing)/classes/page": "app/[locale]/(marketing)/classes/page.js",
+  "/[locale]/(auth)/login/page": "app/[locale]/(auth)/login/page.js",
+  "/[locale]/(member)/dashboard/page": "app/[locale]/(member)/dashboard/page.js",
+  "/[locale]/(marketing)/pricing/page": "app/[locale]/(marketing)/pricing/page.js",
+  "/[locale]/(marketing)/coaches/page": "app/[locale]/(marketing)/coaches/page.js",
+  "/[locale]/(auth)/register/page": "app/[locale]/(auth)/register/page.js",
+  "/[locale]/(member)/billing/page": "app/[locale]/(member)/billing/page.js",
   "/[locale]/(member)/profile/page": "app/[locale]/(member)/profile/page.js",
-  "/[locale]/(member)/billing/page": "app/[locale]/(member)/billing/page.js"
+  "/[locale]/(member)/bookings/page": "app/[locale]/(member)/bookings/page.js",
+  "/[locale]/(marketing)/page": "app/[locale]/(marketing)/page.js"
 }
