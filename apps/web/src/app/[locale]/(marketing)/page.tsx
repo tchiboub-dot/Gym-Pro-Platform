@@ -1,4 +1,3 @@
-import { useTranslations } from 'next-intl';
 import { BackgroundSection, Button } from '@gympro/ui';
 import { getContent } from '@/data/content';
 
@@ -44,13 +43,13 @@ interface FAQ {
 }
 
 export default function HomePage({ params }: { params: { locale: string } }) {
-  const t = useTranslations();
   const locale = params?.locale || 'en';
   
-  // Get content for current locale
+  // Get all content for current locale
   const pageContent = getContent(locale);
 
-  // Extract section data
+  // Extract all data from content source
+  const hero = pageContent?.hero || {};
   const features: Feature[] = pageContent?.features?.items || [];
   const equipment: Equipment[] = pageContent?.equipment?.items || [];
   const coaches: Coach[] = pageContent?.coaches?.items || [];
@@ -58,6 +57,7 @@ export default function HomePage({ params }: { params: { locale: string } }) {
   const pricing: PricingPlan[] = pageContent?.pricing?.items || [];
   const testimonials: Testimonial[] = pageContent?.testimonials?.items || [];
   const faq: FAQ[] = pageContent?.faq?.items || [];
+  const contact = pageContent?.contact || {};
 
   return (
     <main>
@@ -72,17 +72,17 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         <div className="container mx-auto px-6">
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 text-balance">
-              {t('hero.title')}
+              {hero?.title}
             </h1>
             <p className="text-xl md:text-2xl text-text-muted mb-8">
-              {t('hero.subtitle')}
+              {hero?.subtitle}
             </p>
             <div className="flex flex-wrap gap-4">
               <Button variant="primary" size="lg">
-                {t('hero.cta_trial')}
+                {hero?.cta_trial}
               </Button>
               <Button variant="secondary" size="lg">
-                {t('hero.cta_visit')}
+                {hero?.cta_visit}
               </Button>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function HomePage({ params }: { params: { locale: string } }) {
       <section className="py-24 bg-bg-1">
         <div className="container mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-16">
-            {t('features.title')}
+            {pageContent?.features?.title}
           </h2>
           {features && features.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-8">
@@ -115,10 +115,10 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         <section className="py-24 bg-bg-2">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center mb-4">
-              {t('equipment.title')}
+              {pageContent?.equipment?.title}
             </h2>
             <p className="text-center text-text-muted mb-16 max-w-2xl mx-auto">
-              {t('equipment.subtitle')}
+              {pageContent?.equipment?.subtitle}
             </p>
             <div className="grid md:grid-cols-4 gap-6">
               {equipment.map((item: any, idx: number) => (
@@ -137,10 +137,10 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         <section className="py-24 bg-bg-1">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center mb-4">
-              {t('coaches.title')}
+              {pageContent?.coaches?.title}
             </h2>
             <p className="text-center text-text-muted mb-16 max-w-2xl mx-auto">
-              {t('coaches.subtitle')}
+              {pageContent?.coaches?.subtitle}
             </p>
             <div className="grid md:grid-cols-3 gap-8">
               {coaches.map((coach: any, idx: number) => (
@@ -164,10 +164,10 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         <section className="py-24 bg-bg-2">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center mb-4">
-              {t('schedule.title')}
+              {pageContent?.schedule?.title}
             </h2>
             <p className="text-center text-text-muted mb-16 max-w-2xl mx-auto">
-              {t('schedule.subtitle')}
+              {pageContent?.schedule?.subtitle}
             </p>
             <div className="space-y-4 max-w-2xl mx-auto">
               {schedule.map((slot: any, idx: number) => (
@@ -191,10 +191,10 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         <section className="py-24 bg-bg-1">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center mb-4">
-              {t('pricing.title')}
+              {pageContent?.pricing?.title}
             </h2>
             <p className="text-center text-text-muted mb-16 max-w-2xl mx-auto">
-              {t('pricing.subtitle')}
+              {pageContent?.pricing?.subtitle}
             </p>
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {pricing.map((plan: any, idx: number) => (
@@ -239,7 +239,7 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         <section className="py-24 bg-bg-2">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center mb-16">
-              {t('testimonials.title')}
+              {pageContent?.testimonials?.title}
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {testimonials.map((testimonial: any, idx: number) => (
@@ -263,7 +263,7 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         <section className="py-24 bg-bg-1">
           <div className="container mx-auto px-6 max-w-2xl">
             <h2 className="text-4xl font-bold text-center mb-16">
-              {t('faq.title')}
+              {pageContent?.faq?.title}
             </h2>
             <div className="space-y-4">
               {faq.map((item: any, idx: number) => (
@@ -289,24 +289,24 @@ export default function HomePage({ params }: { params: { locale: string } }) {
       <section className="py-24 bg-bg-2">
         <div className="container mx-auto px-6 max-w-2xl text-center">
           <h2 className="text-4xl font-bold mb-4">
-            {t('contact.title')}
+            {contact?.title}
           </h2>
           <p className="text-text-muted mb-8 text-lg">
-            {t('contact.subtitle')}
+            {contact?.subtitle}
           </p>
           <div className="bg-bg-1 rounded-lg p-8 mb-8">
             <p className="mb-4 text-text-muted">
-              <span className="block font-semibold">{t('contact.address')}</span>
+              <span className="block font-semibold">{contact?.address}</span>
             </p>
             <p className="mb-4 text-text-muted">
-              <span className="block">{t('contact.phone')}</span>
+              <span className="block">{contact?.phone}</span>
             </p>
             <p className="mb-6 text-text-muted">
-              <span className="block">{t('contact.email')}</span>
+              <span className="block">{contact?.email}</span>
             </p>
           </div>
           <Button variant="primary" size="lg">
-            {t('contact.cta')}
+            {contact?.cta}
           </Button>
         </div>
       </section>
