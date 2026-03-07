@@ -1,5 +1,4 @@
 import { useTranslations } from 'next-intl';
-import { getLocale } from 'next-intl/server';
 import { BackgroundSection, Button } from '@gympro/ui';
 import enTranslations from '@/content/locales/en.json';
 import frTranslations from '@/content/locales/fr.json';
@@ -46,27 +45,33 @@ interface FAQ {
   answer: string;
 }
 
-const translations: Record<string, any> = {
+const translationsMap: Record<string, any> = {
   en: enTranslations,
   fr: frTranslations,
   ar: arTranslations,
 };
 
-export default async function HomePage() {
+interface PageProps {
+  params: {
+    locale: string;
+  };
+}
+
+export default function HomePage({ params }: PageProps) {
   const t = useTranslations();
-  const locale = await getLocale();
+  const locale = params.locale || 'en';
 
-  // Get translations for current locale
-  const currentTranslations = translations[locale] || translations.en;
+  // Get the correct translation file
+  const content = translationsMap[locale] || translationsMap.en;
 
-  // Safely extract section data
-  const features: Feature[] = currentTranslations?.features?.items || [];
-  const equipment: Equipment[] = currentTranslations?.equipment?.items || [];
-  const coaches: Coach[] = currentTranslations?.coaches?.items || [];
-  const schedule: Schedule[] = currentTranslations?.schedule?.items || [];
-  const pricing: PricingPlan[] = currentTranslations?.pricing?.items || [];
-  const testimonials: Testimonial[] = currentTranslations?.testimonials?.items || [];
-  const faq: FAQ[] = currentTranslations?.faq?.items || [];
+  // Extract section data
+  const features = (content.features?.items as Feature[]) || [];
+  const equipment = (content.equipment?.items as Equipment[]) || [];
+  const coaches = (content.coaches?.items as Coach[]) || [];
+  const schedule = (content.schedule?.items as Schedule[]) || [];
+  const pricing = (content.pricing?.items as PricingPlan[]) || [];
+  const testimonials = (content.testimonials?.items as Testimonial[]) || [];
+  const faq = (content.faq?.items as FAQ[]) || [];
 
   return (
     <main>
