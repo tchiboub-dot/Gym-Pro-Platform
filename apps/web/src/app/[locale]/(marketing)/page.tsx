@@ -1,8 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { BackgroundSection, Button } from '@gympro/ui';
-import enTranslations from '@/content/locales/en.json';
-import frTranslations from '@/content/locales/fr.json';
-import arTranslations from '@/content/locales/ar.json';
+import { getContent } from '@/data/content';
 
 interface Feature {
   title: string;
@@ -45,35 +43,21 @@ interface FAQ {
   answer: string;
 }
 
-const translationsMap: Record<string, any> = {
-  en: enTranslations as any,
-  fr: frTranslations as any,
-  ar: arTranslations as any,
-};
-
-// Simplified - get content from English by default but try all locales
-function getContentForLocale(locale: string | undefined): any {
-  if (!locale) return translationsMap.en;
-  
-  // Normalize locale code (e.g., 'en' from 'en-US')
-  const baseLocale = locale.split('-')[0].toLowerCase();
-  return translationsMap[baseLocale] || translationsMap.en;
-}
-
 export default function HomePage({ params }: { params: { locale: string } }) {
   const t = useTranslations();
+  const locale = params?.locale || 'en';
   
-  // Get the content - fallback to English if locale not found  
-  const content = getContentForLocale(params?.locale) || getContentForLocale('en');
+  // Get content for current locale
+  const pageContent = getContent(locale);
 
-  // Extract section data with explicit logging
-  const features: Feature[] = Array.isArray(content?.features?.items) ? content.features.items : [];
-  const equipment: Equipment[] = Array.isArray(content?.equipment?.items) ? content.equipment.items : [];
-  const coaches: Coach[] = Array.isArray(content?.coaches?.items) ? content.coaches.items : [];
-  const schedule: Schedule[] = Array.isArray(content?.schedule?.items) ? content.schedule.items : [];
-  const pricing: PricingPlan[] = Array.isArray(content?.pricing?.items) ? content.pricing.items : [];
-  const testimonials: Testimonial[] = Array.isArray(content?.testimonials?.items) ? content.testimonials.items : [];
-  const faq: FAQ[] = Array.isArray(content?.faq?.items) ? content.faq.items : [];
+  // Extract section data
+  const features: Feature[] = pageContent?.features?.items || [];
+  const equipment: Equipment[] = pageContent?.equipment?.items || [];
+  const coaches: Coach[] = pageContent?.coaches?.items || [];
+  const schedule: Schedule[] = pageContent?.schedule?.items || [];
+  const pricing: PricingPlan[] = pageContent?.pricing?.items || [];
+  const testimonials: Testimonial[] = pageContent?.testimonials?.items || [];
+  const faq: FAQ[] = pageContent?.faq?.items || [];
 
   return (
     <main>
